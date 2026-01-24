@@ -102,13 +102,15 @@ const Reports: React.FC = () => {
                 {activeTab === 'Penjualan' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                         <h3 style={{ fontWeight: '700' }}>Daftar Transaksi Terbaru</h3>
-                        <div className="table-container">
+                        {/* Desktop Table */}
+                        <div className="table-container desktop-only">
                             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
                                 <thead>
                                     <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
                                         <th style={{ padding: '16px 0', color: '#64748b' }}>ID Transaksi</th>
                                         <th style={{ padding: '16px 0', color: '#64748b' }}>Waktu</th>
                                         <th style={{ padding: '16px 0', color: '#64748b' }}>Kasir</th>
+                                        <th style={{ padding: '16px 0', color: '#64748b' }}>Tipe</th>
                                         <th style={{ padding: '16px 0', color: '#64748b' }}>Metode</th>
                                         <th style={{ padding: '16px 0', color: '#64748b' }}>Total</th>
                                     </tr>
@@ -120,11 +122,32 @@ const Reports: React.FC = () => {
                                             <td style={{ padding: '16px 0', color: '#94a3b8' }}>{t.date}</td>
                                             <td style={{ padding: '16px 0' }}>{t.cashier}</td>
                                             <td style={{ padding: '16px 0' }}><span style={{ padding: '4px 8px', background: '#f1f5f9', borderRadius: '8px', fontSize: '0.8rem' }}>{t.type}</span></td>
+                                            <td style={{ padding: '16px 0' }}><span style={{ padding: '4px 8px', background: '#eff6ff', color: 'var(--primary)', borderRadius: '8px', fontSize: '0.8rem', fontWeight: '600' }}>{t.paymentMethod}</span></td>
                                             <td style={{ padding: '16px 0', fontWeight: '700', color: 'var(--primary)' }}>Rp {t.total.toLocaleString('id-ID')}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Mobile Transaction Cards */}
+                        <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {transactions.map(t => (
+                                <div key={t.id} style={{ padding: '16px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                        <span style={{ fontWeight: '700' }}>#{t.id}</span>
+                                        <span style={{ fontWeight: '800', color: 'var(--primary)' }}>Rp {t.total.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#64748b' }}>
+                                        <span>{t.date}</span>
+                                        <span>{t.cashier}</span>
+                                    </div>
+                                    <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+                                        <span style={{ padding: '4px 8px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '0.75rem' }}>{t.type}</span>
+                                        <span style={{ padding: '4px 8px', background: '#eff6ff', color: 'var(--primary)', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '600' }}>{t.paymentMethod}</span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 )}
@@ -220,7 +243,7 @@ const Reports: React.FC = () => {
                                 </div>
                             ))}
                         </div>
-                        <div style={{ height: '300px' }}>
+                        <div style={{ height: '300px' }} className="desktop-only">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={cashierData}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />

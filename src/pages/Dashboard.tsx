@@ -63,18 +63,18 @@ const Dashboard: React.FC = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+            <div className="flex-header">
                 <h2 style={{ fontSize: '1.875rem', fontWeight: '800' }}>Ringkasan Bisnis</h2>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(var(--card-min-width, 240px), 1fr))', gap: '24px' }}>
                 <StatCard title="Total Penjualan" value={`Rp ${totalRevenue.toLocaleString('id-ID')}`} icon={CreditCard} trend="+0%" color="var(--primary)" />
                 <StatCard title="Total Pesanan" value={totalOrders.toString()} icon={ShoppingBag} trend="+0%" color="#a855f7" />
                 <StatCard title="Total Produk" value={totalProducts.toString()} icon={Package} trend={`+${totalProducts}`} color="#10b981" />
                 <StatCard title="Masalah Stok" value={lowStockCount.toString()} icon={AlertCircle} trend="Low Stock" color="#f59e0b" />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
-                <div style={{ background: 'white', padding: '24px', borderRadius: '16px', boxShadow: 'var(--shadow)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '24px' }}>
+                <div style={{ background: 'white', padding: '24px', borderRadius: '16px', boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
                     <h3 style={{ marginBottom: '24px', fontSize: '1.1rem' }}>Ringkasan Penjualan</h3>
                     <div style={{ height: '300px', width: '100%' }}>
                         <ResponsiveContainer width="100%" height="100%">
@@ -95,7 +95,7 @@ const Dashboard: React.FC = () => {
                     </div>
                 </div>
 
-                <div style={{ background: 'white', padding: '24px', borderRadius: '16px', boxShadow: 'var(--shadow)' }}>
+                <div style={{ background: 'white', padding: '24px', borderRadius: '16px', boxShadow: 'var(--shadow)', overflow: 'hidden' }}>
                     <h3 style={{ marginBottom: '24px', fontSize: '1.1rem' }}>Distribusi Pesanan</h3>
                     <div style={{ height: '300px', width: '100%' }}>
                         <ResponsiveContainer width="100%" height="100%">

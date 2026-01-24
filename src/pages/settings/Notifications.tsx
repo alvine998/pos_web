@@ -34,17 +34,17 @@ const Notifications: React.FC = () => {
 
     return (
         <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
                 <button
                     onClick={() => navigate('/settings')}
-                    style={{ background: 'white', border: '1px solid #e2e8f0', padding: '8px', borderRadius: '12px', cursor: 'pointer' }}
+                    style={{ background: 'white', border: '1px solid #e2e8f0', padding: '8px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
                     <ChevronLeft size={20} />
                 </button>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '700' }}>Notifikasi</h2>
             </div>
 
-            <div style={{ background: 'white', padding: '32px', borderRadius: '24px', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ background: 'white', padding: 'var(--content-padding, 32px)', borderRadius: '24px', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <ToggleItem
                     icon={ShoppingCart}
                     title="Pesanan Baru"
@@ -70,8 +70,8 @@ const Notifications: React.FC = () => {
                     enabled={true}
                 />
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '12px' }}>
-                    <button style={{ padding: '12px 24px', borderRadius: '12px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: '600', cursor: 'pointer' }}>Simpan Preferensi</button>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '12px', flexWrap: 'wrap' }}>
+                    <button style={{ width: '100%', padding: '12px 24px', borderRadius: '12px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: '600', cursor: 'pointer' }}>Simpan Preferensi</button>
                 </div>
             </div>
         </div>

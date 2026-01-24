@@ -18,7 +18,7 @@ const Security: React.FC = () => {
             </div>
 
             <div style={{ display: 'grid', gap: '24px' }}>
-                <div style={{ background: 'white', padding: '32px', borderRadius: '24px', boxShadow: 'var(--shadow)' }}>
+                <div style={{ background: 'white', padding: 'var(--content-padding, 32px)', borderRadius: '24px', boxShadow: 'var(--shadow)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
                         <div style={{ background: '#fef2f2', padding: '10px', borderRadius: '12px', color: '#ef4444' }}>
                             <Key size={24} />
@@ -31,7 +31,7 @@ const Security: React.FC = () => {
                             <label>Kata Sandi Saat Ini</label>
                             <input type="password" placeholder="••••••••" />
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        <div className="responsive-modal-grid">
                             <div className="form-group">
                                 <label>Kata Sandi Baru</label>
                                 <input type="password" placeholder="••••••••" />
@@ -41,12 +41,11 @@ const Security: React.FC = () => {
                                 <input type="password" placeholder="••••••••" />
                             </div>
                         </div>
-                        <button style={{ marginTop: '12px', padding: '12px', borderRadius: '12px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: '600', cursor: 'pointer' }}>
+                        <button style={{ width: '100%', marginTop: '12px', padding: '12px', borderRadius: '12px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: '600', cursor: 'pointer' }}>
                             Update Kata Sandi
                         </button>
                     </div>
                 </div>
-
             </div>
         </div>
     );

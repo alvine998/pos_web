@@ -60,26 +60,26 @@ const Inventory: React.FC = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="flex-header">
                 <h2 style={{ fontSize: '1.875rem', fontWeight: '800' }}>Stok & Inventori</h2>
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     <button
                         onClick={() => setShowModal('Masuk')}
-                        style={{ background: '#dcfce7', color: '#166534', border: 'none', padding: '12px 24px', borderRadius: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+                        style={{ background: '#dcfce7', color: '#166534', border: 'none', padding: '10px 16px', borderRadius: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.9rem' }}
                     >
-                        <ArrowUpRight size={20} /> Stok Masuk
+                        <ArrowUpRight size={18} /> <span className="desktop-only">Stok Masuk</span><span className="mobile-only">Masuk</span>
                     </button>
                     <button
                         onClick={() => setShowModal('Keluar')}
-                        style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '12px 24px', borderRadius: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+                        style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '10px 16px', borderRadius: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.9rem' }}
                     >
-                        <ArrowDownLeft size={20} /> Stok Keluar
+                        <ArrowDownLeft size={18} /> <span className="desktop-only">Stok Keluar</span><span className="mobile-only">Keluar</span>
                     </button>
                     <button
                         onClick={() => setShowModal('Opname')}
-                        style={{ background: 'var(--primary)', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+                        style={{ background: 'var(--primary)', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.9rem' }}
                     >
-                        <RefreshCw size={20} /> Stock Opname
+                        <RefreshCw size={18} /> <span className="desktop-only">Stock Opname</span><span className="mobile-only">Opname</span>
                     </button>
                 </div>
             </div>
@@ -111,7 +111,8 @@ const Inventory: React.FC = () => {
                         />
                     </div>
 
-                    <div style={{ background: 'white', borderRadius: '24px', boxShadow: 'var(--shadow)', overflow: 'hidden' }} className="table-container">
+                    {/* Desktop Table */}
+                    <div style={{ background: 'white', borderRadius: '24px', boxShadow: 'var(--shadow)', overflow: 'hidden' }} className="table-container desktop-only">
                         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
                             <thead>
                                 <tr style={{ background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
@@ -151,6 +152,27 @@ const Inventory: React.FC = () => {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {filteredStock.map(p => (
+                            <div key={p.id} style={{ background: 'white', padding: '16px', borderRadius: '16px', boxShadow: 'var(--shadow)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ width: '40px', height: '40px', background: '#f1f5f9', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>
+                                        {p.image}
+                                    </div>
+                                    <div>
+                                        <p style={{ fontWeight: '600', fontSize: '0.95rem' }}>{p.name}</p>
+                                        <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{p.sku} • {p.units[0].type}</p>
+                                    </div>
+                                </div>
+                                <div style={{ textAlign: 'right' }}>
+                                    <p style={{ fontWeight: '700', fontSize: '1.1rem', color: p.stock <= p.minStock ? '#ef4444' : 'inherit' }}>{p.stock}</p>
+                                    <p style={{ fontSize: '0.7rem', color: p.stock <= p.minStock ? '#ef4444' : '#10b981', fontWeight: '600' }}>{p.stock <= p.minStock ? 'Low' : 'OK'}</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
@@ -197,8 +219,8 @@ const Inventory: React.FC = () => {
 
             {/* History Modal */}
             {showHistoryModal && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
-                    <div style={{ background: 'white', width: '800px', borderRadius: '32px', padding: '32px', position: 'relative', maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)', padding: '16px' }}>
+                    <div style={{ background: 'white', width: '100%', maxWidth: '800px', borderRadius: '32px', padding: '32px', position: 'relative', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                         <button onClick={() => setShowHistoryModal(false)} style={{ position: 'absolute', top: '32px', right: '32px', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', zIndex: 10 }}>
                             <X size={24} />
                         </button>
@@ -251,8 +273,8 @@ const Inventory: React.FC = () => {
 
             {/* Action Modal */}
             {showModal && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
-                    <div style={{ background: 'white', width: '400px', borderRadius: '24px', padding: '32px', position: 'relative' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)', padding: '16px' }}>
+                    <div style={{ background: 'white', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '32px', position: 'relative' }}>
                         <button onClick={() => setShowModal(null)} style={{ position: 'absolute', top: '24px', right: '24px', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}>
                             <X size={24} />
                         </button>

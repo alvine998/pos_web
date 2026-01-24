@@ -43,7 +43,7 @@ const Categories: React.FC = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+            <div className="flex-header">
                 <h2 style={{ fontSize: '1.875rem', fontWeight: '800' }}>Kelola Kategori</h2>
                 <button
                     onClick={() => { setEditCategory(null); setNewCategoryName(''); setShowModal(true); }}

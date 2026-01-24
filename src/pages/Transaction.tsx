@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Minus, Search, ShoppingCart, Trash2, X, Users, Utensils, ShoppingBag, CheckCircle2, Printer, RotateCcw } from 'lucide-react';
+import { Plus, Minus, Search, ShoppingCart, Trash2, X, Users, Utensils, ShoppingBag, CheckCircle2, Printer, RotateCcw, QrCode } from 'lucide-react';
 
 // Interface for local cart item state
 interface CartItem {
@@ -12,7 +12,7 @@ import { useToast } from '../context/ToastContext';
 import type { Product, StockMovement } from '../data/dummyData';
 
 const Transaction: React.FC = () => {
-    const { products, setProducts, setMovements, setTransactions, categories } = usePOS();
+    const { products, setProducts, setMovements, setTransactions, categories, paymentSettings } = usePOS();
     const { showToast } = useToast();
     const [selectedCategory, setSelectedCategory] = useState('Semua');
     const [cart, setCart] = useState<CartItem[]>([]);
@@ -25,6 +25,7 @@ const Transaction: React.FC = () => {
     const [discount, setDiscount] = useState<number>(0);
     const [lastOrderDetails, setLastOrderDetails] = useState<any>(null);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'Tunai' | 'QRIS' | 'Transfer Bank' | null>(null);
 
     const filteredProducts = products.filter(p =>
         (selectedCategory === 'Semua' || p.category === selectedCategory) &&
@@ -78,6 +79,11 @@ const Transaction: React.FC = () => {
             return;
         }
 
+        if (!selectedPaymentMethod) {
+            showToast('Silahkan pilih metode pembayaran', 'warning');
+            return;
+        }
+
         const details = {
             items: [...cart],
             orderType,
@@ -88,7 +94,8 @@ const Transaction: React.FC = () => {
             tax,
             total,
             date: new Date().toLocaleString('id-ID'),
-            orderId: `TRX-${Date.now().toString().slice(-6)}`
+            orderId: `TRX-${Date.now().toString().slice(-6)}`,
+            paymentMethod: selectedPaymentMethod
         };
 
         // INTEGRATION: Deduct Stock
@@ -127,7 +134,8 @@ const Transaction: React.FC = () => {
             tax: details.tax,
             total: details.total,
             profit: cart.reduce((p, item) => p + ((item.product.price - item.product.cost) * item.quantity), 0) - (discount * 0.9), // rough calculation minus discount
-            type: details.orderType
+            type: details.orderType,
+            paymentMethod: details.paymentMethod
         };
         setTransactions(prev => [newTransaction, ...prev]);
 
@@ -144,6 +152,7 @@ const Transaction: React.FC = () => {
         setOrderType('Dine In');
         setDiscount(0);
         setLastOrderDetails(null);
+        setSelectedPaymentMethod(null);
     };
 
     const handlePrint = () => {
@@ -176,7 +185,7 @@ const Transaction: React.FC = () => {
                             style={{ width: '100%', padding: '12px 12px 12px 40px', borderRadius: '12px', border: '1px solid #e2e8f0' }}
                         />
                     </div>
-                    <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', maxWidth: '100%', WebkitOverflowScrolling: 'touch' }}>
+                    <div className="filter-bar" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px', maxWidth: '100%', WebkitOverflowScrolling: 'touch', background: 'transparent', padding: 0, boxShadow: 'none' }}>
                         {categories.map(cat => (
                             <button
                                 key={cat}
@@ -336,7 +345,7 @@ const Transaction: React.FC = () => {
 
                         <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '24px' }}>Konfirmasi Pesanan</h3>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+                        <div className="responsive-modal-grid" style={{ marginBottom: '24px', gap: '12px' }}>
                             <button
                                 onClick={() => setOrderType('Dine In')}
                                 style={{
@@ -358,7 +367,7 @@ const Transaction: React.FC = () => {
                         </div>
 
                         {orderType === 'Dine In' && (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+                            <div className="responsive-modal-grid" style={{ marginBottom: '24px' }}>
                                 <div className="form-group" style={{ marginBottom: 0 }}>
                                     <label style={{ fontSize: '0.875rem', marginBottom: '8px' }}>Nomor Meja</label>
                                     <input
@@ -385,6 +394,73 @@ const Transaction: React.FC = () => {
                             </div>
                         )}
 
+                        <div style={{ marginBottom: '24px' }}>
+                            <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#64748b', display: 'block', marginBottom: '12px' }}>Pilih Metode Pembayaran</label>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
+                                {paymentSettings.isCashEnabled && (
+                                    <button
+                                        onClick={() => setSelectedPaymentMethod('Tunai')}
+                                        style={{
+                                            padding: '12px', borderRadius: '12px', border: selectedPaymentMethod === 'Tunai' ? '2px solid var(--primary)' : '1px solid #e2e8f0',
+                                            background: selectedPaymentMethod === 'Tunai' ? '#eff6ff' : 'white', color: selectedPaymentMethod === 'Tunai' ? 'var(--primary)' : '#64748b', fontSize: '0.9rem', fontWeight: '600', cursor: 'pointer'
+                                        }}
+                                    >
+                                        Tunai
+                                    </button>
+                                )}
+                                {paymentSettings.isQrisEnabled && (
+                                    <button
+                                        onClick={() => setSelectedPaymentMethod('QRIS')}
+                                        style={{
+                                            padding: '12px', borderRadius: '12px', border: selectedPaymentMethod === 'QRIS' ? '2px solid var(--primary)' : '1px solid #e2e8f0',
+                                            background: selectedPaymentMethod === 'QRIS' ? '#eff6ff' : 'white', color: selectedPaymentMethod === 'QRIS' ? 'var(--primary)' : '#64748b', fontSize: '0.9rem', fontWeight: '600', cursor: 'pointer'
+                                        }}
+                                    >
+                                        QRIS
+                                    </button>
+                                )}
+                                {paymentSettings.isBankEnabled && (
+                                    <button
+                                        onClick={() => setSelectedPaymentMethod('Transfer Bank')}
+                                        style={{
+                                            padding: '12px', borderRadius: '12px', border: selectedPaymentMethod === 'Transfer Bank' ? '2px solid var(--primary)' : '1px solid #e2e8f0',
+                                            background: selectedPaymentMethod === 'Transfer Bank' ? '#eff6ff' : 'white', color: selectedPaymentMethod === 'Transfer Bank' ? 'var(--primary)' : '#64748b', fontSize: '0.9rem', fontWeight: '600', cursor: 'pointer'
+                                        }}
+                                    >
+                                        Bank
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Payment Details Section */}
+                        {selectedPaymentMethod === 'QRIS' && (
+                            <div style={{ padding: '24px', background: '#f8fafc', borderRadius: '24px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                                <div style={{ background: 'white', padding: '16px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                                    <QrCode size={160} color="#1e293b" />
+                                </div>
+                                <div style={{ textAlign: 'center' }}>
+                                    <p style={{ fontWeight: '700', fontSize: '1rem', color: '#1e293b' }}>Scan QRIS</p>
+                                    <p style={{ fontSize: '0.875rem', color: '#64748b' }}>Silahkan tunjukkan kode QR ini ke pelanggan</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {selectedPaymentMethod === 'Transfer Bank' && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+                                <p style={{ fontSize: '0.875rem', fontWeight: '600', color: '#64748b' }}>Rekening Tujuan:</p>
+                                {paymentSettings.bankAccounts.map(acc => (
+                                    <div key={acc.id} style={{ padding: '16px', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div>
+                                            <p style={{ fontWeight: '700', color: 'var(--primary)' }}>{acc.bankName}</p>
+                                            <p style={{ fontSize: '1rem', fontWeight: '600', margin: '4px 0' }}>{acc.accountNo}</p>
+                                            <p style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase' }}>a.n {acc.holderName}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
                         <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '20px', marginBottom: '32px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.875rem', color: '#64748b' }}>
                                 <span>{cart.length} Item</span>
@@ -407,123 +483,127 @@ const Transaction: React.FC = () => {
             )}
 
             {/* Success Modal */}
-            {showSuccessModal && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, backdropFilter: 'blur(8px)', padding: '16px' }}>
-                    <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '32px', width: '100%', maxWidth: '400px' }}>
-                        <div style={{ width: '80px', height: '80px', background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#22c55e' }}>
-                            <CheckCircle2 size={48} />
-                        </div>
-                        <div>
-                            <h3 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '8px' }}>Pesanan Berhasil!</h3>
-                            <p style={{ color: '#64748b' }}>Transaksi telah dicatat ke dalam sistem.</p>
-                        </div>
+            {
+                showSuccessModal && (
+                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100, backdropFilter: 'blur(8px)', padding: '16px' }}>
+                        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '32px', width: '100%', maxWidth: '400px' }}>
+                            <div style={{ width: '80px', height: '80px', background: '#dcfce7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#22c55e' }}>
+                                <CheckCircle2 size={48} />
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '8px' }}>Pesanan Berhasil!</h3>
+                                <p style={{ color: '#64748b' }}>Transaksi telah dicatat ke dalam sistem.</p>
+                            </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
-                            <button
-                                onClick={handlePrint}
-                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', padding: '16px', borderRadius: '16px', background: 'var(--primary)', color: 'white', border: 'none', fontSize: '1rem', fontWeight: '700', cursor: 'pointer' }}
-                            >
-                                <Printer size={20} /> Cetak Struk
-                            </button>
-                            <button
-                                onClick={resetTransaction}
-                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', padding: '16px', borderRadius: '16px', background: 'white', color: '#64748b', border: '1px solid #e2e8f0', fontSize: '1rem', fontWeight: '700', cursor: 'pointer' }}
-                            >
-                                <RotateCcw size={20} /> Pesanan Baru
-                            </button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
+                                <button
+                                    onClick={handlePrint}
+                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', padding: '16px', borderRadius: '16px', background: 'var(--primary)', color: 'white', border: 'none', fontSize: '1rem', fontWeight: '700', cursor: 'pointer' }}
+                                >
+                                    <Printer size={20} /> Cetak Struk
+                                </button>
+                                <button
+                                    onClick={resetTransaction}
+                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', padding: '16px', borderRadius: '16px', background: 'white', color: '#64748b', border: '1px solid #e2e8f0', fontSize: '1rem', fontWeight: '700', cursor: 'pointer' }}
+                                >
+                                    <RotateCcw size={20} /> Pesanan Baru
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Hidden Receipt for Printing */}
-            {lastOrderDetails && (
-                <div id="receipt-print" style={{
-                    display: 'none',
-                    width: '80mm',
-                    fontSize: '12px',
-                    lineHeight: '1.2',
-                    padding: '10px',
-                    background: 'white',
-                    fontFamily: 'monospace',
-                    color: 'black'
-                }}>
-                    <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                        <h2 style={{ margin: 0 }}>TOKO KASIR POS</h2>
-                        <p style={{ margin: '5px 0' }}>Jl. Contoh Alamat No. 123</p>
-                        <p style={{ margin: '5px 0' }}>Telp: 0812-3456-7890</p>
-                    </div>
+            {
+                lastOrderDetails && (
+                    <div id="receipt-print" style={{
+                        display: 'none',
+                        width: '80mm',
+                        fontSize: '12px',
+                        lineHeight: '1.2',
+                        padding: '10px',
+                        background: 'white',
+                        fontFamily: 'monospace',
+                        color: 'black'
+                    }}>
+                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                            <h2 style={{ margin: 0 }}>TOKO KASIR POS</h2>
+                            <p style={{ margin: '5px 0' }}>Jl. Contoh Alamat No. 123</p>
+                            <p style={{ margin: '5px 0' }}>Telp: 0812-3456-7890</p>
+                        </div>
 
-                    <div style={{ borderBottom: '1px dashed #000', paddingBottom: '10px', marginBottom: '10px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span>Order ID:</span>
-                            <span>{lastOrderDetails.orderId}</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span>Tanggal:</span>
-                            <span>{lastOrderDetails.date}</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span>Tipe:</span>
-                            <span>{lastOrderDetails.orderType}</span>
-                        </div>
-                        {lastOrderDetails.orderType === 'Dine In' && (
-                            <>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span>Meja:</span>
-                                    <span>{lastOrderDetails.tableNumber}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span>Jumlah Orang:</span>
-                                    <span>{lastOrderDetails.totalPersons}</span>
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    <div style={{ borderBottom: '1px dashed #000', paddingBottom: '10px', marginBottom: '10px' }}>
-                        {lastOrderDetails.items.map((item: any, idx: number) => (
-                            <div key={idx} style={{ marginBottom: '8px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span>{item.product.name}</span>
-                                    <span>x{item.quantity}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
-                                    <span>Rp {item.product.price.toLocaleString('id-ID')}</span>
-                                    <span>Rp {(item.product.price * item.quantity).toLocaleString('id-ID')}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div style={{ borderBottom: '1px dashed #000', paddingBottom: '10px', marginBottom: '10px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span>Subtotal:</span>
-                            <span>Rp {lastOrderDetails.subtotal.toLocaleString('id-ID')}</span>
-                        </div>
-                        {lastOrderDetails.discount > 0 && (
+                        <div style={{ borderBottom: '1px dashed #000', paddingBottom: '10px', marginBottom: '10px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span>Diskon:</span>
-                                <span>- Rp {lastOrderDetails.discount.toLocaleString('id-ID')}</span>
+                                <span>Order ID:</span>
+                                <span>{lastOrderDetails.orderId}</span>
                             </div>
-                        )}
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span>Pajak (10%):</span>
-                            <span>Rp {lastOrderDetails.tax.toLocaleString('id-ID')}</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Tanggal:</span>
+                                <span>{lastOrderDetails.date}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Tipe:</span>
+                                <span>{lastOrderDetails.orderType}</span>
+                            </div>
+                            {lastOrderDetails.orderType === 'Dine In' && (
+                                <>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>Meja:</span>
+                                        <span>{lastOrderDetails.tableNumber}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>Jumlah Orang:</span>
+                                        <span>{lastOrderDetails.totalPersons}</span>
+                                    </div>
+                                </>
+                            )}
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '18px', marginTop: '5px' }}>
-                            <span>TOTAL:</span>
-                            <span>Rp {lastOrderDetails.total.toLocaleString('id-ID')}</span>
-                        </div>
-                    </div>
 
-                    <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                        <p>Terima Kasih</p>
-                        <p>Silahkan Datang Kembali</p>
+                        <div style={{ borderBottom: '1px dashed #000', paddingBottom: '10px', marginBottom: '10px' }}>
+                            {lastOrderDetails.items.map((item: any, idx: number) => (
+                                <div key={idx} style={{ marginBottom: '8px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>{item.product.name}</span>
+                                        <span>x{item.quantity}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
+                                        <span>Rp {item.product.price.toLocaleString('id-ID')}</span>
+                                        <span>Rp {(item.product.price * item.quantity).toLocaleString('id-ID')}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div style={{ borderBottom: '1px dashed #000', paddingBottom: '10px', marginBottom: '10px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Subtotal:</span>
+                                <span>Rp {lastOrderDetails.subtotal.toLocaleString('id-ID')}</span>
+                            </div>
+                            {lastOrderDetails.discount > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Diskon:</span>
+                                    <span>- Rp {lastOrderDetails.discount.toLocaleString('id-ID')}</span>
+                                </div>
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Pajak (10%):</span>
+                                <span>Rp {lastOrderDetails.tax.toLocaleString('id-ID')}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '18px', marginTop: '5px' }}>
+                                <span>TOTAL:</span>
+                                <span>Rp {lastOrderDetails.total.toLocaleString('id-ID')}</span>
+                            </div>
+                        </div>
+
+                        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                            <p>Terima Kasih</p>
+                            <p>Silahkan Datang Kembali</p>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };
 

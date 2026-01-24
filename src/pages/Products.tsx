@@ -122,8 +122,8 @@ const Products: React.FC = () => {
             </div>
 
             {/* Filters */}
-            <div className="filter-bar" style={{ background: 'white', padding: '24px', borderRadius: '24px', boxShadow: 'var(--shadow)' }}>
-                <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
+            <div className="filter-bar" style={{ background: 'white', padding: '20px', borderRadius: '24px', boxShadow: 'var(--shadow)' }}>
+                <div style={{ position: 'relative', flex: '1 1 300px' }}>
                     <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} size={20} />
                     <input
                         type="text"
@@ -136,14 +136,14 @@ const Products: React.FC = () => {
                 <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    style={{ padding: '12px 24px', borderRadius: '12px', border: '1px solid #e2e8f0', background: 'white', fontWeight: '500', minWidth: '150px' }}
+                    style={{ flex: '1 1 150px', padding: '12px 24px', borderRadius: '12px', border: '1px solid #e2e8f0', background: 'white', fontWeight: '500' }}
                 >
                     {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
             </div>
 
-            {/* Table */}
-            <div style={{ background: 'white', borderRadius: '24px', boxShadow: 'var(--shadow)', overflow: 'hidden' }} className="table-container">
+            {/* Desktop Table View */}
+            <div style={{ background: 'white', borderRadius: '24px', boxShadow: 'var(--shadow)', overflow: 'hidden' }} className="table-container desktop-only">
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
                     <thead>
                         <tr style={{ background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
@@ -208,6 +208,47 @@ const Products: React.FC = () => {
                         ))}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {filteredProducts.map(product => (
+                    <div key={product.id} style={{ background: 'white', padding: '16px', borderRadius: '16px', boxShadow: 'var(--shadow)' }}>
+                        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '12px' }}>
+                            <div style={{ width: '50px', height: '50px', background: '#f1f5f9', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
+                                {product.image}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <h4 style={{ fontWeight: '700', fontSize: '1rem' }}>{product.name}</h4>
+                                <p style={{ fontSize: '0.8rem', color: '#64748b' }}>{product.category} • {product.sku}</p>
+                                <p style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: '600', marginTop: '2px' }}>Stock: {product.stock}</p>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <p style={{ fontWeight: '800', color: 'var(--primary)', fontSize: '1rem' }}>Rp {product.price.toLocaleString('id-ID')}</p>
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
+                            <button
+                                onClick={() => handleOpenModal(product)}
+                                style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.9rem', fontWeight: '600', color: '#64748b' }}
+                            >
+                                <Edit3 size={16} /> Edit
+                            </button>
+                            <button
+                                onClick={() => handleDelete(product.id)}
+                                style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #fee2e2', background: 'white', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.9rem', fontWeight: '600' }}
+                            >
+                                <Trash2 size={16} /> Hapus
+                            </button>
+                        </div>
+                    </div>
+                ))}
+                {filteredProducts.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
+                        <Package size={48} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
+                        <p>Tidak ada produk ditemukan</p>
+                    </div>
+                )}
             </div>
 
             {/* Product Modal */}

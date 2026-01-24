@@ -43,6 +43,7 @@ export interface DetailedTransaction {
   total: number;
   profit: number;
   type: "Dine In" | "Take Away";
+  paymentMethod: string;
 }
 
 export interface CashFlow {
@@ -73,6 +74,7 @@ export const initialTransactions: DetailedTransaction[] = [
     total: 55000,
     profit: 20000,
     type: "Dine In",
+    paymentMethod: "Tunai",
   },
   {
     id: "TRX-102",
@@ -99,6 +101,7 @@ export const initialTransactions: DetailedTransaction[] = [
     total: 58300,
     profit: 23000,
     type: "Take Away",
+    paymentMethod: "Debit",
   },
 ];
 
@@ -205,3 +208,31 @@ export const initialStockMovements: StockMovement[] = [
 
 export const categories = ["Semua", "Kopi", "Teh", "Kue", "Makanan"];
 export const unitsList = ["pcs", "box", "pack"];
+
+export interface BankAccount {
+  id: number;
+  bankName: string;
+  accountNo: string;
+  holderName: string;
+}
+
+export interface PaymentSettings {
+  isCashEnabled: boolean;
+  isQrisEnabled: boolean;
+  isBankEnabled: boolean;
+  bankAccounts: BankAccount[];
+}
+
+export const initialPaymentSettings: PaymentSettings = {
+  isCashEnabled: true,
+  isQrisEnabled: true,
+  isBankEnabled: true,
+  bankAccounts: [
+    {
+      id: 1,
+      bankName: "BCA",
+      accountNo: "1234567890",
+      holderName: "Toko Kasir POS",
+    },
+  ],
+};

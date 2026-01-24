@@ -99,7 +99,8 @@ const StaffManagement: React.FC = () => {
                 </button>
             </div>
 
-            <div style={{ background: 'white', padding: '16px', borderRadius: '24px', boxShadow: 'var(--shadow)', overflow: 'hidden' }} className="table-container">
+            {/* Desktop Table View */}
+            <div style={{ background: 'white', padding: '16px', borderRadius: '24px', boxShadow: 'var(--shadow)', overflow: 'hidden' }} className="table-container desktop-only">
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
                     <thead>
                         <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
@@ -158,6 +159,52 @@ const StaffManagement: React.FC = () => {
                         ))}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {staffList.map((staff) => (
+                    <div key={staff.id} style={{ background: 'white', padding: '16px', borderRadius: '20px', boxShadow: 'var(--shadow)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                <div style={{ width: '44px', height: '44px', background: '#f8fafc', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                                    <User size={24} />
+                                </div>
+                                <div>
+                                    <div style={{ fontWeight: '700', fontSize: '1rem' }}>{staff.name}</div>
+                                    <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{staff.email}</div>
+                                </div>
+                            </div>
+                            <span style={{
+                                padding: '4px 10px',
+                                background: staff.status === 'Aktif' ? '#dcfce7' : '#fee2e2',
+                                color: staff.status === 'Aktif' ? '#166534' : '#991b1b',
+                                borderRadius: '20px',
+                                fontSize: '0.75rem',
+                                fontWeight: '700'
+                            }}>
+                                {staff.status}
+                            </span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
+                            <span style={{ padding: '4px 10px', background: '#eff6ff', color: '#3b82f6', borderRadius: '8px', fontSize: '0.8rem', fontWeight: '600' }}>{staff.role}</span>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                    onClick={() => handleOpenModal(staff)}
+                                    style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#64748b', fontWeight: '600', fontSize: '0.85rem' }}
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(staff.id)}
+                                    style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #fee2e2', background: 'white', color: '#ef4444', fontWeight: '600', fontSize: '0.85rem' }}
+                                >
+                                    Hapus
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
             </div>
 
             {showModal && (

@@ -17,15 +17,15 @@ const StoreProfile: React.FC = () => {
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '700' }}>Profil Toko</h2>
             </div>
 
-            <div style={{ background: 'white', padding: '32px', borderRadius: '24px', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                    <div style={{ width: '100px', height: '100px', background: '#f8fafc', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px dashed #cbd5e1', position: 'relative' }}>
+            <div style={{ background: 'white', padding: 'var(--content-padding, 32px)', borderRadius: '24px', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
+                    <div style={{ width: '100px', height: '100px', background: '#f8fafc', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px dashed #cbd5e1', position: 'relative', flexShrink: 0 }}>
                         <Camera size={32} color="#94a3b8" />
                         <button style={{ position: 'absolute', bottom: '-8px', right: '-8px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
                             +
                         </button>
                     </div>
-                    <div>
+                    <div style={{ minWidth: '200px' }}>
                         <h4 style={{ fontWeight: '600', marginBottom: '4px' }}>Logo Toko</h4>
                         <p style={{ fontSize: '0.875rem', color: '#64748b' }}>Gunakan file PNG atau JPG minimal 500x500px</p>
                     </div>
@@ -53,9 +53,9 @@ const StoreProfile: React.FC = () => {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '12px' }}>
-                    <button style={{ padding: '12px 24px', borderRadius: '12px', border: '1px solid #e2e8f0', background: 'white', fontWeight: '600', cursor: 'pointer' }}>Batal</button>
-                    <button style={{ padding: '12px 24px', borderRadius: '12px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: '600', cursor: 'pointer' }}>Simpan Perubahan</button>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '12px', flexWrap: 'wrap' }}>
+                    <button style={{ flex: '1 1 120px', padding: '12px 24px', borderRadius: '12px', border: '1px solid #e2e8f0', background: 'white', fontWeight: '600', cursor: 'pointer' }}>Batal</button>
+                    <button style={{ flex: '1 1 200px', padding: '12px 24px', borderRadius: '12px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: '600', cursor: 'pointer' }}>Simpan Perubahan</button>
                 </div>
             </div>
         </div>

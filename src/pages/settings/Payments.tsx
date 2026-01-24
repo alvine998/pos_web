@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import { ChevronLeft, Wallet, Banknote, Percent, Camera } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { usePOS } from '../../context/POSContext';
+import { useToast } from '../../context/ToastContext';
 
 const Payments: React.FC = () => {
     const navigate = useNavigate();
-    const [isQrisEnabled, setIsQrisEnabled] = useState(true);
-    const [isBankEnabled, setIsBankEnabled] = useState(false);
-    const [bankAccounts, setBankAccounts] = useState([{ id: Date.now(), bankName: '', accountNo: '', holderName: '' }]);
+    const { paymentSettings, setPaymentSettings } = usePOS();
+    const { showToast } = useToast();
+
+    const [isCashEnabled, setIsCashEnabled] = useState(paymentSettings.isCashEnabled);
+    const [isQrisEnabled, setIsQrisEnabled] = useState(paymentSettings.isQrisEnabled);
+    const [isBankEnabled, setIsBankEnabled] = useState(paymentSettings.isBankEnabled);
+    const [bankAccounts, setBankAccounts] = useState(paymentSettings.bankAccounts);
 
     const addBankAccount = () => {
         setBankAccounts([...bankAccounts, { id: Date.now(), bankName: '', accountNo: '', holderName: '' }]);
@@ -75,11 +81,16 @@ const Payments: React.FC = () => {
                 <h2 style={{ fontSize: '1.5rem', fontWeight: '700' }}>Pembayaran</h2>
             </div>
 
-            <div style={{ background: 'white', padding: '32px', borderRadius: '24px', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            <div style={{ background: 'white', padding: 'var(--content-padding, 32px)', borderRadius: '24px', boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column', gap: '32px' }}>
                 <section>
                     <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '20px' }}>Metode Pembayaran</h3>
                     <div style={{ display: 'grid', gap: '16px' }}>
-                        <PaymentMethod icon={Banknote} title="Tunai" enabled={true} />
+                        <PaymentMethod
+                            icon={Banknote}
+                            title="Tunai"
+                            enabled={isCashEnabled}
+                            onToggle={() => setIsCashEnabled(!isCashEnabled)}
+                        />
                         <PaymentMethod
                             icon={Wallet}
                             title="QRIS / E-Wallet"
@@ -87,7 +98,7 @@ const Payments: React.FC = () => {
                             onToggle={() => setIsQrisEnabled(!isQrisEnabled)}
                         />
                         {isQrisEnabled && (
-                            <div style={{ padding: '24px', border: '2px dashed #e2e8f0', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', background: '#f8fafc', marginLeft: '24px' }}>
+                            <div style={{ padding: '24px', border: '2px dashed #e2e8f0', borderRadius: '16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', background: '#f8fafc', marginLeft: 'var(--sub-margin, 24px)' }}>
                                 <div style={{ width: '48px', height: '48px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', border: '1px solid #e2e8f0' }}>
                                     <Camera size={24} />
                                 </div>
@@ -98,7 +109,6 @@ const Payments: React.FC = () => {
                                 <button style={{ fontSize: '0.875rem', color: 'var(--primary)', fontWeight: '600', background: 'none', border: 'none', cursor: 'pointer' }}>Pilih File</button>
                             </div>
                         )}
-                        {/* <PaymentMethod icon={CreditCard} title="Kartu Debit/Kredit" enabled={true} /> */}
                         <PaymentMethod
                             icon={Percent}
                             title="Transfer Bank"
@@ -106,8 +116,8 @@ const Payments: React.FC = () => {
                             onToggle={() => setIsBankEnabled(!isBankEnabled)}
                         />
                         {isBankEnabled && (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: '#f8fafc', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0', marginLeft: '24px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', background: '#f8fafc', padding: 'var(--content-padding, 24px)', borderRadius: '16px', border: '1px solid #e2e8f0', marginLeft: 'var(--sub-margin, 24px)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap' }}>
                                     <h4 style={{ fontWeight: '600', fontSize: '0.9rem' }}>Daftar Rekening Bank</h4>
                                     <button
                                         onClick={addBankAccount}
@@ -126,7 +136,7 @@ const Payments: React.FC = () => {
                                                 ×
                                             </button>
                                         )}
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                        <div className="responsive-modal-grid">
                                             <div className="form-group" style={{ marginBottom: 0 }}>
                                                 <label style={{ fontSize: '0.75rem', marginBottom: '4px' }}>Nama Bank</label>
                                                 <input
@@ -187,9 +197,27 @@ const Payments: React.FC = () => {
                     </div>
                 </section>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                    <button style={{ padding: '12px 24px', borderRadius: '12px', border: '1px solid #e2e8f0', background: 'white', fontWeight: '600', cursor: 'pointer' }}>Batal</button>
-                    <button style={{ padding: '12px 24px', borderRadius: '12px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: '600', cursor: 'pointer' }}>Simpan</button>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', flexWrap: 'wrap' }}>
+                    <button
+                        onClick={() => navigate('/settings')}
+                        style={{ flex: '1 1 120px', padding: '12px 24px', borderRadius: '12px', border: '1px solid #e2e8f0', background: 'white', fontWeight: '600', cursor: 'pointer' }}
+                    >
+                        Batal
+                    </button>
+                    <button
+                        onClick={() => {
+                            setPaymentSettings({
+                                isCashEnabled,
+                                isQrisEnabled,
+                                isBankEnabled,
+                                bankAccounts
+                            });
+                            showToast('Pengaturan pembayaran berhasil disimpan', 'success');
+                        }}
+                        style={{ flex: '1 1 200px', padding: '12px 24px', borderRadius: '12px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: '600', cursor: 'pointer' }}
+                    >
+                        Simpan
+                    </button>
                 </div>
             </div>
         </div>

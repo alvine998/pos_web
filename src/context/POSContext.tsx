@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, type ReactNode } from 'react';
-import { initialProducts, categories as initialCategories, initialTransactions, initialCashFlow, initialStockMovements, type Product, type StockMovement, type DetailedTransaction, type CashFlow } from '../data/dummyData';
+import { initialProducts, categories as initialCategories, initialTransactions, initialCashFlow, initialStockMovements, initialPaymentSettings, type Product, type StockMovement, type DetailedTransaction, type CashFlow, type PaymentSettings } from '../data/dummyData';
 
 interface POSContextType {
     products: Product[];
@@ -12,6 +12,8 @@ interface POSContextType {
     setCashFlow: React.Dispatch<React.SetStateAction<CashFlow[]>>;
     movements: StockMovement[];
     setMovements: React.Dispatch<React.SetStateAction<StockMovement[]>>;
+    paymentSettings: PaymentSettings;
+    setPaymentSettings: React.Dispatch<React.SetStateAction<PaymentSettings>>;
 }
 
 const POSContext = createContext<POSContextType | undefined>(undefined);
@@ -22,6 +24,7 @@ export const POSProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const [transactions, setTransactions] = useState<DetailedTransaction[]>(initialTransactions);
     const [cashFlow, setCashFlow] = useState<CashFlow[]>(initialCashFlow);
     const [movements, setMovements] = useState<StockMovement[]>(initialStockMovements);
+    const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>(initialPaymentSettings);
 
     return (
         <POSContext.Provider value={{
@@ -29,7 +32,8 @@ export const POSProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             categories, setCategories,
             transactions, setTransactions,
             cashFlow, setCashFlow,
-            movements, setMovements
+            movements, setMovements,
+            paymentSettings, setPaymentSettings
         }}>
             {children}
         </POSContext.Provider>
