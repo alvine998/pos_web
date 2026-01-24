@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, CreditCard, Wallet, Banknote, Percent, Camera } from 'lucide-react';
+import { ChevronLeft, Wallet, Banknote, Percent, Camera } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Payments: React.FC = () => {
