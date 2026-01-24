@@ -28,15 +28,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     logout();
     showToast('Logout Berhasil', 'info');
   };
-  const navItems = [
-    { icon: LayoutDashboard, label: 'Beranda', path: '/dashboard' },
-    { icon: Package, label: 'Produk', path: '/products' },
-    { icon: LayoutGrid, label: 'Kategori', path: '/categories' },
-    { icon: Boxes, label: 'Stok', path: '/inventory' },
-    { icon: ShoppingCart, label: 'Transaksi', path: '/transaction' },
-    { icon: BarChart3, label: 'Laporan', path: '/reports' },
-    { icon: Settings, label: 'Pengaturan', path: '/settings' },
+  const allNavItems = [
+    { icon: LayoutDashboard, label: 'Beranda', path: '/dashboard', roles: ['Admin'] },
+    { icon: Package, label: 'Produk', path: '/products', roles: ['Admin'] },
+    { icon: LayoutGrid, label: 'Kategori', path: '/categories', roles: ['Admin'] },
+    { icon: Boxes, label: 'Stok', path: '/inventory', roles: ['Admin'] },
+    { icon: ShoppingCart, label: 'Transaksi', path: '/transaction', roles: ['Admin', 'Cashier', 'Waiter'] },
+    { icon: BarChart3, label: 'Laporan', path: '/reports', roles: ['Admin', 'Cashier'] },
+    { icon: Settings, label: 'Pengaturan', path: '/settings', roles: ['Admin'] },
   ];
+
+  const navItems = allNavItems.filter(item => item.roles.includes(user?.role || ''));
 
   return (
     <div className="layout">

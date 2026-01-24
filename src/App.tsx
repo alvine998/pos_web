@@ -18,11 +18,17 @@ import { POSProvider } from './context/POSContext';
 import { ToastProvider } from './context/ToastContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: string[] }> = ({ children, allowedRoles }) => {
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>Memuat...</div>;
   if (!isAuthenticated) return <Navigate to="/login" />;
+
+  if (allowedRoles && !allowedRoles.includes(user?.role || '')) {
+    // If user is logged in but doesn't have the role, redirect to their default page
+    if (user?.role === 'Admin') return <Navigate to="/dashboard" />;
+    return <Navigate to="/transaction" />;
+  }
 
   return <>{children}</>;
 };
@@ -41,7 +47,7 @@ const App: React.FC = () => {
               <Route
                 path="/dashboard"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['Admin']}>
                     <Layout>
                       <Dashboard />
                     </Layout>
@@ -52,7 +58,7 @@ const App: React.FC = () => {
               <Route
                 path="/products"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['Admin']}>
                     <Layout>
                       <Products />
                     </Layout>
@@ -62,7 +68,7 @@ const App: React.FC = () => {
               <Route
                 path="/categories"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['Admin']}>
                     <Layout>
                       <Categories />
                     </Layout>
@@ -72,7 +78,7 @@ const App: React.FC = () => {
               <Route
                 path="/inventory"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['Admin']}>
                     <Layout>
                       <Inventory />
                     </Layout>
@@ -82,7 +88,7 @@ const App: React.FC = () => {
               <Route
                 path="/transaction"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['Admin', 'Cashier', 'Waiter']}>
                     <Layout>
                       <Transaction />
                     </Layout>
@@ -93,7 +99,7 @@ const App: React.FC = () => {
               <Route
                 path="/reports"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['Admin', 'Cashier']}>
                     <Layout>
                       <Reports />
                     </Layout>
@@ -104,7 +110,7 @@ const App: React.FC = () => {
               <Route
                 path="/settings"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['Admin']}>
                     <Layout>
                       <Settings />
                     </Layout>
@@ -114,7 +120,7 @@ const App: React.FC = () => {
               <Route
                 path="/settings/profile"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['Admin']}>
                     <Layout>
                       <StoreProfile />
                     </Layout>
@@ -124,7 +130,7 @@ const App: React.FC = () => {
               <Route
                 path="/settings/payments"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['Admin']}>
                     <Layout>
                       <Payments />
                     </Layout>
@@ -134,7 +140,7 @@ const App: React.FC = () => {
               <Route
                 path="/settings/notifications"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['Admin']}>
                     <Layout>
                       <Notifications />
                     </Layout>
@@ -144,7 +150,7 @@ const App: React.FC = () => {
               <Route
                 path="/settings/staff"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['Admin']}>
                     <Layout>
                       <StaffManagement />
                     </Layout>
@@ -154,7 +160,7 @@ const App: React.FC = () => {
               <Route
                 path="/settings/security"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['Admin']}>
                     <Layout>
                       <Security />
                     </Layout>

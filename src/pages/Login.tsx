@@ -22,7 +22,11 @@ const Login: React.FC = () => {
             const success = await login(formData.username, formData.password, formData.role);
             if (success) {
                 showToast('Login Berhasil', 'success');
-                navigate('/dashboard');
+                if (formData.role === 'admin') {
+                    navigate('/dashboard');
+                } else {
+                    navigate('/transaction');
+                }
             }
         } catch (error) {
             showToast('Username atau Password salah', 'error');

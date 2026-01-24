@@ -9,9 +9,11 @@ interface CartItem {
 
 import { usePOS } from '../context/POSContext';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import type { Product, StockMovement } from '../data/dummyData';
 
 const Transaction: React.FC = () => {
+    const { user } = useAuth();
     const { products, setProducts, setMovements, setTransactions, categories, paymentSettings } = usePOS();
     const { showToast } = useToast();
     const [selectedCategory, setSelectedCategory] = useState('Semua');
@@ -95,7 +97,8 @@ const Transaction: React.FC = () => {
             total,
             date: new Date().toLocaleString('id-ID'),
             orderId: `TRX-${Date.now().toString().slice(-6)}`,
-            paymentMethod: selectedPaymentMethod
+            paymentMethod: selectedPaymentMethod,
+            cashier: user?.name || 'Staff'
         };
 
         // INTEGRATION: Deduct Stock
@@ -122,7 +125,7 @@ const Transaction: React.FC = () => {
         const newTransaction = {
             id: details.orderId,
             date: details.date,
-            cashier: 'Admin', // Default for now
+            cashier: details.cashier,
             items: cart.map(item => ({
                 productId: item.product.id,
                 name: item.product.name,
@@ -541,6 +544,10 @@ const Transaction: React.FC = () => {
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span>Tanggal:</span>
                                 <span>{lastOrderDetails.date}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Staff:</span>
+                                <span style={{ textTransform: 'uppercase' }}>{lastOrderDetails.cashier}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span>Tipe:</span>

@@ -3,8 +3,10 @@ import { Download, TrendingUp, DollarSign, Package, Users, ArrowUpRight, ArrowDo
 import * as XLSX from 'xlsx';
 import { usePOS } from '../context/POSContext';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart as RePieChart, Pie } from 'recharts';
+import { useAuth } from '../context/AuthContext';
 
 const Reports: React.FC = () => {
+    const { user } = useAuth();
     const { transactions, cashFlow } = usePOS();
     const [activeTab, setActiveTab] = useState('Penjualan');
 
@@ -45,7 +47,8 @@ const Reports: React.FC = () => {
         XLSX.writeFile(workbook, `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`);
     };
 
-    const tabs = ['Penjualan', 'Produk Terlaris', 'Laba Rugi', 'Arus Kas', 'Kasir'];
+    const allTabs = ['Penjualan', 'Produk Terlaris', 'Laba Rugi', 'Arus Kas', 'Kasir'];
+    const tabs = user?.role === 'Cashier' ? ['Penjualan', 'Produk Terlaris'] : allTabs;
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
