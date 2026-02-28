@@ -10,7 +10,8 @@ import {
   Package,
   Boxes,
   LayoutGrid,
-  Menu
+  Menu,
+  Wallet
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -34,6 +35,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { icon: LayoutGrid, label: 'Kategori', path: '/categories', roles: ['Admin'] },
     { icon: Boxes, label: 'Stok', path: '/inventory', roles: ['Admin'] },
     { icon: ShoppingCart, label: 'Transaksi', path: '/transaction', roles: ['Admin', 'Cashier', 'Waiter'] },
+    { icon: Wallet, label: 'Keuangan', path: '/finance', roles: ['Admin'] },
     { icon: BarChart3, label: 'Laporan', path: '/reports', roles: ['Admin', 'Cashier'] },
     { icon: Settings, label: 'Pengaturan', path: '/settings', roles: ['Admin'] },
   ];

@@ -14,6 +14,7 @@ import Security from './pages/settings/Security';
 import Products from './pages/Products';
 import Inventory from './pages/Inventory';
 import Categories from './pages/Categories';
+import Finance from './pages/Finance';
 import { POSProvider } from './context/POSContext';
 import { ToastProvider } from './context/ToastContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -91,6 +92,17 @@ const App: React.FC = () => {
                   <ProtectedRoute allowedRoles={['Admin', 'Cashier', 'Waiter']}>
                     <Layout>
                       <Transaction />
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/finance"
+                element={
+                  <ProtectedRoute allowedRoles={['Admin']}>
+                    <Layout>
+                      <Finance />
                     </Layout>
                   </ProtectedRoute>
                 }

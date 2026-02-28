@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Product } from '../data/dummyData';
+import type { Product, PackageItem } from '../data/dummyData';
 import { usePOS } from '../context/POSContext';
 import { useToast } from '../context/ToastContext';
 import { Plus, Search, Edit3, Trash2, Package, Tag, Hash, LayoutGrid, Image as ImageIcon, X } from 'lucide-react';
@@ -21,7 +21,9 @@ const Products: React.FC = () => {
         price: 0,
         cost: 0,
         minStock: 5,
-        image: '📦'
+        image: '📦',
+        isPackage: false,
+        packageItems: [] as PackageItem[]
     });
 
     const handleOpenModal = (product?: Product) => {
@@ -35,7 +37,9 @@ const Products: React.FC = () => {
                 price: product.price,
                 cost: product.cost,
                 minStock: product.minStock,
-                image: product.image
+                image: product.image,
+                isPackage: product.isPackage || false,
+                packageItems: product.packageItems || []
             });
         } else {
             setEditProduct(null);
@@ -47,7 +51,9 @@ const Products: React.FC = () => {
                 price: 0,
                 cost: 0,
                 minStock: 5,
-                image: '📦'
+                image: '📦',
+                isPackage: false,
+                packageItems: []
             });
         }
         setShowModal(true);
@@ -63,9 +69,11 @@ const Products: React.FC = () => {
             id: editProduct ? editProduct.id : Date.now(),
             ...formData,
             margin: formData.price - formData.cost,
-            stock: editProduct ? editProduct.stock : 0,
+            stock: editProduct ? editProduct.stock : (formData.isPackage ? 0 : 0),
             variants: editProduct ? editProduct.variants : [],
-            units: editProduct ? editProduct.units : [{ type: 'pcs', multiplier: 1 }]
+            units: editProduct ? editProduct.units : [{ type: 'pcs', multiplier: 1 }],
+            isPackage: formData.isPackage,
+            packageItems: formData.isPackage ? formData.packageItems : undefined
         };
 
         if (editProduct) {
@@ -184,6 +192,11 @@ const Products: React.FC = () => {
                                     <span style={{ padding: '6px 12px', background: '#eff6ff', color: '#3b82f6', borderRadius: '8px', fontSize: '0.875rem', fontWeight: '500' }}>
                                         {product.category}
                                     </span>
+                                    {product.isPackage && (
+                                        <span style={{ marginLeft: '8px', padding: '6px 12px', background: '#fef3c7', color: '#d97706', borderRadius: '8px', fontSize: '0.875rem', fontWeight: '500' }}>
+                                            Paket
+                                        </span>
+                                    )}
                                 </td>
                                 <td style={{ padding: '20px 24px', fontWeight: '600' }}>Rp {product.price.toLocaleString('id-ID')}</td>
                                 <td style={{ padding: '20px 24px', color: '#64748b' }}>Rp {product.cost.toLocaleString('id-ID')}</td>
@@ -282,6 +295,96 @@ const Products: React.FC = () => {
                                     {categories.filter(c => c !== 'Semua').map(cat => <option key={cat} value={cat}>{cat}</option>)}
                                 </select>
                             </div>
+
+                            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.875rem', fontWeight: '600', color: '#64748b', cursor: 'pointer' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.isPackage}
+                                        onChange={(e) => setFormData({ ...formData, isPackage: e.target.checked })}
+                                        style={{ width: '16px', height: '16px' }}
+                                    />
+                                    Jadikan Produk ini sebagai Paket (Bundle)
+                                </label>
+                            </div>
+
+                            {formData.isPackage && (
+                                <div className="form-group" style={{ gridColumn: '1 / -1', background: '#f8fafc', padding: '16px', borderRadius: '12px' }}>
+                                    <h4 style={{ fontSize: '0.875rem', fontWeight: '600', color: '#334155', marginBottom: '12px' }}>Isi Paket</h4>
+
+                                    {/* List already added items */}
+                                    {formData.packageItems.map((item, index) => {
+                                        return (
+                                            <div key={index} style={{ display: 'flex', gap: '12px', marginBottom: '8px', alignItems: 'center' }}>
+                                                <select
+                                                    value={item.productId}
+                                                    onChange={(e) => {
+                                                        const newItems = [...formData.packageItems];
+                                                        newItems[index].productId = Number(e.target.value);
+
+                                                        // Auto update cost when changing item
+                                                        const newCost = newItems.reduce((acc, curr) => {
+                                                            const p = products.find(x => x.id === curr.productId);
+                                                            return acc + (p ? p.cost * curr.quantity : 0);
+                                                        }, 0);
+
+                                                        setFormData({ ...formData, packageItems: newItems, cost: newCost });
+                                                    }}
+                                                    style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                                                >
+                                                    <option value={0} disabled>Pilih Produk</option>
+                                                    {products.filter(p => !p.isPackage).map(p => (
+                                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                                    ))}
+                                                </select>
+                                                <input
+                                                    type="number"
+                                                    value={item.quantity}
+                                                    onChange={(e) => {
+                                                        const newItems = [...formData.packageItems];
+                                                        newItems[index].quantity = Number(e.target.value);
+
+                                                        // Auto update cost when changing quantity
+                                                        const newCost = newItems.reduce((acc, curr) => {
+                                                            const p = products.find(x => x.id === curr.productId);
+                                                            return acc + (p ? p.cost * curr.quantity : 0);
+                                                        }, 0);
+
+                                                        setFormData({ ...formData, packageItems: newItems, cost: newCost });
+                                                    }}
+                                                    min="1"
+                                                    style={{ width: '80px', padding: '8px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                                                />
+                                                <button
+                                                    onClick={() => {
+                                                        const newItems = formData.packageItems.filter((_, i) => i !== index);
+                                                        // Auto update cost
+                                                        const newCost = newItems.reduce((acc, curr) => {
+                                                            const p = products.find(x => x.id === curr.productId);
+                                                            return acc + (p ? p.cost * curr.quantity : 0);
+                                                        }, 0);
+                                                        setFormData({ ...formData, packageItems: newItems, cost: newCost });
+                                                    }}
+                                                    style={{ padding: '8px', background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        );
+                                    })}
+
+                                    <button
+                                        onClick={() => setFormData({
+                                            ...formData,
+                                            packageItems: [...formData.packageItems, { productId: 0, quantity: 1 }]
+                                        })}
+                                        style={{ marginTop: '8px', padding: '8px 16px', background: '#e0e7ff', color: '#4f46e5', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', fontSize: '0.875rem' }}
+                                    >
+                                        + Tambah Produk ke Paket
+                                    </button>
+                                </div>
+                            )}
+
                             <div className="form-group">
                                 <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#64748b' }}>SKU</label>
                                 <input

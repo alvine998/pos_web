@@ -9,6 +9,11 @@ export interface ProductUnit {
   multiplier: number; // e.g., 1 box = 12 pcs
 }
 
+export interface PackageItem {
+  productId: number;
+  quantity: number;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -23,6 +28,8 @@ export interface Product {
   units: ProductUnit[];
   stock: number;
   minStock: number;
+  isPackage?: boolean;
+  packageItems?: PackageItem[];
 }
 
 export interface TransactionItem {
@@ -183,6 +190,26 @@ export const initialProducts: Product[] = [
     units: [
       { type: "pcs", multiplier: 1 },
       { type: "box", multiplier: 10 },
+    ],
+  },
+  {
+    id: 4,
+    name: "Paket Sarapan Hemat",
+    sku: "PKT-001",
+    barcode: "8994455667",
+    category: "Paket",
+    price: 35000,
+    cost: 25000,
+    margin: 10000,
+    image: "🍱",
+    stock: 0,
+    minStock: 0,
+    variants: [],
+    units: [{ type: "pcs", multiplier: 1 }],
+    isPackage: true,
+    packageItems: [
+      { productId: 1, quantity: 1 }, // Espresso
+      { productId: 3, quantity: 1 }, // Croissant
     ],
   },
 ];

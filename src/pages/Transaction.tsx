@@ -35,14 +35,14 @@ const Transaction: React.FC = () => {
     );
 
     const addToCart = (product: Product) => {
-        if (product.stock <= 0) {
+        if (!product.isPackage && product.stock <= 0) {
             showToast('Stok habis untuk produk ini', 'error');
             return;
         }
         setCart(prev => {
             const existing = prev.find(item => item.product.id === product.id);
             if (existing) {
-                if (existing.quantity >= product.stock) {
+                if (!product.isPackage && existing.quantity >= product.stock) {
                     showToast('Stok tidak mencukupi', 'warning');
                     return prev;
                 }
@@ -59,8 +59,8 @@ const Transaction: React.FC = () => {
             if (item.product.id === id) {
                 const newQty = item.quantity + delta;
 
-                // If adding, check stock
-                if (delta > 0 && newQty > item.product.stock) {
+                // If adding, check stock (but ignore for packages)
+                if (!item.product.isPackage && delta > 0 && newQty > item.product.stock) {
                     showToast('Stok tidak mencukupi', 'warning');
                     return item;
                 }
@@ -103,22 +103,56 @@ const Transaction: React.FC = () => {
 
         // INTEGRATION: Deduct Stock
         setProducts(prevProducts => prevProducts.map(p => {
-            const cartItem = cart.find(item => item.product.id === p.id);
-            if (cartItem) {
-                return { ...p, stock: p.stock - cartItem.quantity };
+            let totalDeduction = 0;
+
+            // 1. Is it bought directly as a normal item?
+            const directCartItem = cart.find(item => item.product.id === p.id);
+            if (directCartItem) {
+                totalDeduction += directCartItem.quantity;
+            }
+
+            // 2. Is it part of any package that was bought?
+            cart.forEach(cartItem => {
+                if (cartItem.product.isPackage && cartItem.product.packageItems) {
+                    const packageComponent = cartItem.product.packageItems.find(pi => pi.productId === p.id);
+                    if (packageComponent) {
+                        totalDeduction += packageComponent.quantity * cartItem.quantity;
+                    }
+                }
+            });
+
+            if (totalDeduction > 0) {
+                return { ...p, stock: p.stock - totalDeduction };
             }
             return p;
         }));
 
         // INTEGRATION: Record Movements
-        const newMovements: StockMovement[] = cart.map(item => ({
-            id: `M-${Date.now()}-${item.product.id}`,
-            productId: item.product.id,
-            date: new Date().toISOString().split('T')[0],
-            type: 'Keluar',
-            quantity: item.quantity,
-            note: `Penjualan ${details.orderId}`
-        }));
+        const newMovements: StockMovement[] = [];
+        cart.forEach(item => {
+            if (item.product.isPackage && item.product.packageItems) {
+                // Record movement for each component in the package
+                item.product.packageItems.forEach(pi => {
+                    newMovements.push({
+                        id: `M-${Date.now()}-${pi.productId}-${Math.random()}`,
+                        productId: pi.productId,
+                        date: new Date().toISOString().split('T')[0],
+                        type: 'Keluar',
+                        quantity: pi.quantity * item.quantity,
+                        note: `Penjualan Paket ${details.orderId} (${item.product.name})`
+                    });
+                });
+            } else {
+                newMovements.push({
+                    id: `M-${Date.now()}-${item.product.id}-${Math.random()}`,
+                    productId: item.product.id,
+                    date: new Date().toISOString().split('T')[0],
+                    type: 'Keluar',
+                    quantity: item.quantity,
+                    note: `Penjualan ${details.orderId}`
+                });
+            }
+        });
         setMovements(prev => [...newMovements, ...prev]);
 
         // INTEGRATION: Record Transaction
@@ -221,23 +255,31 @@ const Transaction: React.FC = () => {
                                 padding: '16px',
                                 borderRadius: '16px',
                                 boxShadow: 'var(--shadow)',
-                                cursor: product.stock > 0 ? 'pointer' : 'not-allowed',
+                                cursor: (product.isPackage || product.stock > 0) ? 'pointer' : 'not-allowed',
                                 transition: 'transform 0.2s',
                                 textAlign: 'center',
-                                opacity: product.stock > 0 ? 1 : 0.5,
+                                opacity: (product.isPackage || product.stock > 0) ? 1 : 0.5,
                                 position: 'relative'
                             }}
                         >
-                            {product.stock <= product.minStock && product.stock > 0 && (
+                            {product.isPackage && (
+                                <span style={{ position: 'absolute', top: '10px', left: '10px', background: '#fef3c7', color: '#d97706', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', fontWeight: '700', border: '1px solid #fde68a' }}>Paket</span>
+                            )}
+                            {!product.isPackage && product.stock <= product.minStock && product.stock > 0 && (
                                 <span style={{ position: 'absolute', top: '10px', right: '10px', background: '#fff7ed', color: '#c2410c', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', fontWeight: '700', border: '1px solid #fed7aa' }}>Low Stock</span>
                             )}
-                            {product.stock <= 0 && (
+                            {!product.isPackage && product.stock <= 0 && (
                                 <span style={{ position: 'absolute', top: '10px', right: '10px', background: '#fee2e2', color: '#b91c1c', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px', fontWeight: '700', border: '1px solid #fecaca' }}>Habis</span>
                             )}
                             <div style={{ fontSize: '3rem', marginBottom: '12px' }}>{product.image}</div>
                             <h4 style={{ fontWeight: '600', marginBottom: '4px' }}>{product.name}</h4>
                             <p style={{ color: 'var(--primary)', fontWeight: '700' }}>Rp {product.price.toLocaleString('id-ID')}</p>
-                            <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>Stok: {product.stock}</p>
+                            {!product.isPackage && (
+                                <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>Stok: {product.stock}</p>
+                            )}
+                            {product.isPackage && (
+                                <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '4px' }}>Isi: {product.packageItems?.length || 0} Item</p>
+                            )}
                         </div>
                     ))}
                 </div>
